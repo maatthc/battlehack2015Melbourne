@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<!--
+    Copyright (c) 2012-2014 Adobe Systems Incorporated. All rights reserved.
+
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+     KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+-->
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="format-detection" content="telephone=no" />
+        <meta name="msapplication-tap-highlight" content="no" />
+        <!-- WARNING: for iOS 7, remove the width=device-width and height=device-height attributes. See https://issues.apache.org/jira/browse/CB-4323 -->
+        <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height" />
+
+	<script src="js/jquery.min.js"></script>
+	<script src="js/bootstrap.min.js"></script>
+	<link rel="stylesheet" href="css/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="css/recycleBin.css"/>
+
+        <link rel="stylesheet" type="text/css" href="css/index.css" />
+        <title>Smart Bin</title>
+    </head>
+    <body ng-app="smartBin">
+        <div class="app">
+
+            <div class="container text-center " ng-controller="pageController">
+
+              <!-- Page1 -->
+              <div id="page1" class="" ng-show="isPage(1)">
+        <br/>
+		<img src="img/smartBin.png" alt="Smart Bin"/>
+    <br/><br/>
+                <h4>Welcome</br>Please scan your personal Code</h4>
+	   <br/><br/><br/>
+    <button ng-click="scanBarcode()" class="scanner">Press to scan your card.</button><br/> 
+                <p><br/>OR<br/><br/><a href="#" ng-click="no_barcode()">click here to donate your reward to JustGiving !</a></p>
+              </div>
+
+
+              <!-- Page2 -->
+              <div id="page2" class="" ng-show="isPage(2)">
+		<br/>
+		<img src="img/smartBin.png" alt="Smart Bin"/>
+                   <div id="barcode" class="" ng-show="is_barcode()">
+                    <br/><br/>
+                <h3>Hi Angela!</h3>
+                   </div>
+    <br/><br/>
+                <h1>Please place your rubbish on tray</h1>
+	<br/><br/>
+                   <button ng-click="scanRubbish()" class="scanner">Scan Rubbish</button>
+                  
+                  <br/><br/>
+                                <a href="#" ng-click="back()">Back</a>
+              </div>
+
+
+              <!-- Page3 -->
+              <div id="page3" class="" ng-show="isPage(3)">
+	<br/>
+		<img src="img/smartBin.png" alt="Smart Bin"/>
+	<br/><br/>
+                <h4>Identifying item ..</h4>
+                <div id="scanProcess"><progressbar value="55"></progressbar></div>
+<br/><br/>    
+                <a href="" ng-click="forward()">on success</a>
+                  
+                  <br/><br/>
+                                <a href="#" ng-click="back()">Back</a>
+              </div>
+
+              <!-- Page4 -->
+              <div id="page3" class="" ng-show="isPage(4)">
+	<br/>
+		<img src="img/smartBin.png" alt="Smart Bin"/>
+	<br/><br/>
+                <h1>Thank you for your Rubbish/Recylable</h1>
+                <h3>+ $0.10 to your account/charity</h3>
+                <p><br/><br/>
+                    <button ng-click="back()" class="scanner">Insert another item.</button>
+    
+                    <br/><br/>
+                                  <a href="#" ng-click="back()">Back</a>
+              </div>
+
+
+            </div>
+        <div id="offline" ng-show="is_offline()"> 
+            <br/><br/>
+            Connection Lost!
+        </div>
+        
+	</div>
+        <script type="text/javascript" charset="utf-8" src="cordova.js"></script>
+	<script type="text/javascript" charset="utf-8">
+
+    var pictureSource;   // picture source
+    var destinationType; // sets the format of returned value
+
+    // Wait for device API libraries to load
+    //
+    document.addEventListener("deviceready",onDeviceReady,false);
+
+    // device APIs are available
+    //
+    function onDeviceReady() {
+        pictureSource=navigator.camera.PictureSourceType;
+        destinationType=navigator.camera.DestinationType;
+    }
+
+    // Called when a photo is successfully retrieved
+    //
+    function onPhotoDataSuccess(imageData) {
+      // Uncomment to view the base64-encoded image data
+      // console.log(imageData);
+        call_online();
+
+      // Get image handle
+      //
+      var smallImage = document.getElementById('smallImage');
+
+      // Unhide image elements
+      //
+      smallImage.style.display = 'block';
+
+      // Show the captured photo
+      // The in-line CSS rules are used to resize the image
+      //
+      smallImage.src = "data:image/jpeg;base64," + imageData;
+
+
+      // Send img and userId to server
+      // Simple POST request example (passing data) :
+    
+      $http.post('http://172.16.21.6:8989/recyclable', {"recyclable" : "fail"}).
+      success(function(data, status, headers, config) {
+        console.log("Command sent correctly!");
+      }).
+      error(function(data, status, headers, config) {
+      // called asynchronously if an error occurs
+      // or server returns response with an error status.
+          console.log("Something went wrong...");
+      });
+    }
+
+    function onBarcodeSuccess(imageData) {
+      // Uncomment to view the base64-encoded image data
+      // console.log(imageData);
+        call_online();
+
+      // Get image handle
+      //
+      var smallImage = document.getElementById('smallImage');
+
+      // Unhide image elements
+      //
+      smallImage.style.display = 'block';
+
+      // Show the captured photo
+      // The in-line CSS rules are used to resize the image
+      //
+      smallImage.src = "data:image/jpeg;base64," + imageData;
+    }
+
+    // A button will call this function
+    //
+    function capturePhotoFront() {
+      // Take picture using device camera and retrieve image as base64-encoded string
+      navigator.camera.getPicture(onBarcodeSuccess, onFail, { quality: 50, destinationType: destinationType.DATA_URL, cameraDirection: 1 });
+    }
+    function capturePhotoBack() {
+      // Take picture using device camera and retrieve image as base64-encoded string
+      navigator.camera.getPicture(onPhotoDataSuccess, onFail, { quality: 50, destinationType: destinationType.DATA_URL , cameraDirection: 0 });
+    }
+
+    // A button will call this function
+    //
+    function getPhoto(source) {
+      // Retrieve image file location from specified source
+      navigator.camera.getPicture(onPhotoURISuccess, onFail, { quality: 50, destinationType: destinationType.FILE_URI, sourceType: source });
+    }
+
+    // Called if something bad happens.
+    //
+    function onFail(message) {
+	      
+    }
+    function call_online(){
+        
+    }
+
+	</script>
+
+	<script src="js/angular.min.js"></script>
+	<script src="js/angular-touch.js"></script>
+    <script src="js/ui-bootstrap-tpls-0.12.0.js"></script>
+	<script type="text/javascript" src="app/app.js"></script>
+</div>
+    </body>
+</html>
